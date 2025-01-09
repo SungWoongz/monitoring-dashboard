@@ -21,6 +21,10 @@ func App() *echo.Echo {
 
 		app.Use(loggerMiddleware)
 		app.Use(middleware.Recover())
+		app.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+          AllowOrigins: []string{"*"},
+          AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
+        }))
 
 		app.GET("/", readyz)
 		app.GET("/cpu", handler.GetCpuStatusHandler)
