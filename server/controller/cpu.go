@@ -9,10 +9,10 @@ import (
 
 func GetCpuStatus() (models.CPU_Status, error) {
 	v := models.CPU_Status{}
-	cpuPercent, err := cpu.Percent(1*time.Second, true)
+	cp, err := cpu.Percent(1*time.Second, true)
 	if err != nil {
 		return v, err
 	}
-	v.Used = cpuPercent
+	v.Used = cp
 	return v, nil
 }
