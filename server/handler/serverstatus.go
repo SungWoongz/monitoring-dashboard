@@ -10,6 +10,10 @@ import (
 
 func GetCpuStatusHandler(c echo.Context) error {
 	v := models.HttpResponseStatusOk()
-	v.Data = controller.GetCpuStatus()
+	d, err := controller.GetCpuStatus()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, models.HttpResponseInternalServerError())
+	}
+	v.Data = d
 	return c.JSON(http.StatusOK, v)
 }
