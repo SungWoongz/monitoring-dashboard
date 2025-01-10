@@ -3,6 +3,7 @@ package actions
 import (
 	"net/http"
 	"server/handler"
+	"server/models"
 	"sync"
 
 	"github.com/labstack/echo/v4"
@@ -18,12 +19,11 @@ func App() *echo.Echo {
 	appOnce.Do(func() {
 		app = echo.New()
 
+		app.Use(corsMiddleware)
 		app.Use(loggerMiddleware)
+		app.Use(TransactionMiddleware(models.Db))
+		app.Use(ErrorMiddleware())
 		app.Use(middleware.Recover())
-		app.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-          AllowOrigins: []string{"*"},
-          AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
-        }))
 
 		app.GET("/", readyz)
 

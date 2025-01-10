@@ -1,5 +1,8 @@
 package models
 
+import "time"
+
 type CPU_Status struct {
-	Used []float64 `json:"used"`
+	Timestamp time.Time `json:"timestamp" gorm:"primaryKey"`
+	Usage     string    `json:"Usage"  gorm:"type:json"`
 }
