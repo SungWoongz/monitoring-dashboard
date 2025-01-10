@@ -17,3 +17,14 @@ export const fetchCpuData = async (): Promise<Record<string, any>> => {
         throw error;
     }
 };
+
+// MEMORY 데이터 가져오는 함수
+export const fetchMemData = async (): Promise<Record<string, any>> => {
+    try {
+        const response = await api.get('/mem');
+        return response.data.data;
+    } catch (error) {
+        console.error('Error fetching MEMORY data:', error);
+        throw error;
+    }
+};
