@@ -16,7 +16,6 @@ var (
 
 func App() *echo.Echo {
 	appOnce.Do(func() {
-
 		app = echo.New()
 
 		app.Use(loggerMiddleware)
@@ -27,8 +26,11 @@ func App() *echo.Echo {
         }))
 
 		app.GET("/", readyz)
-		app.GET("/cpu", handler.GetCpuStatusHandler)
 
+		app.GET("/ws", handler.WS)
+
+		app.GET("/cpu", handler.GetCpuStatusHandler)
+		app.GET("/mem", handler.GetMemStatusHandler)
 	})
 	return app
 }
