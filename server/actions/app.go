@@ -6,8 +6,11 @@ import (
 	"server/models"
 	"sync"
 
+	_ "server/docs"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 var (
@@ -15,6 +18,11 @@ var (
 	appOnce sync.Once
 )
 
+// @title MonDash API
+// @version 0.0.1
+// @description MonDash API SERVER Swagger
+// @host localhost:8080
+// @BasePath /
 func App() *echo.Echo {
 	appOnce.Do(func() {
 		app = echo.New()
@@ -26,6 +34,7 @@ func App() *echo.Echo {
 		app.Use(middleware.Recover())
 
 		app.GET("/", readyz)
+		app.GET("/swagger/*", echoSwagger.WrapHandler)
 
 		app.GET("/ws", handler.WS)
 

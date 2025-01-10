@@ -36,6 +36,18 @@ func WS(c echo.Context) error {
 	}
 }
 
+// GetCpuStatusHandler godoc
+// @Summary Get CPU Status
+// @Description Retrieves CPU status data based on the specified interval and limit.
+// @Tags CPU
+// @Accept json
+// @Produce json
+// @Param interval query string false "Interval in seconds (default: 1)"
+// @Param limit query string false "Number of records to fetch (default: 30)"
+// @Success 200 {object} models.HttpResponse
+// @Failure 400 {object} models.HttpResponse
+// @Failure 500 {object} models.HttpResponse
+// @Router /cpu [get]
 func GetCpuStatusHandler(c echo.Context) error {
 	tx := c.Get("tx").(*gorm.DB)
 	v := models.HttpResponseStatusOk()

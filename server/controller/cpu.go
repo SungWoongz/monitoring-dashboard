@@ -2,8 +2,11 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"server/models"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/shirou/gopsutil/cpu"
@@ -27,11 +30,11 @@ func GetCpuCurrentStatus() (models.CPU_Status, error) {
 func GetCpuStatus(tx *gorm.DB, interval int, limit int) ([]models.CPU_Status, error) {
 	var d []models.CPU_Status
 	query := `
-    SELECT *
-    FROM cpu_statuses
-    WHERE CAST(strftime('%s', timestamp) AS INTEGER) % ? = 0
-    ORDER BY timestamp DESC
-    LIMIT ?`
+		SELECT *
+		FROM cpu_statuses
+		WHERE CAST(strftime('%s', timestamp) AS INTEGER) % ? = 0
+		ORDER BY timestamp DESC
+		LIMIT ?`
 	if err := tx.Raw(query, interval, limit).Scan(&d).Error; err != nil {
 		return d, err
 	}
@@ -55,4 +58,19 @@ func CollectCpuStatus(db *gorm.DB) {
 			log.Printf("Failed to delete old records: %v", err)
 		}
 	}
+}
+
+// ConvertStringToFloatArray converts a string like "[1.23,4.56]" to a float64 array
+func ConvertStringToFloatArray(input string) ([]float64, error) {
+	input = strings.Trim(input, "[]")
+	strValues := strings.Split(input, ",")
+	var floatValues []float64
+	for _, str := range strValues {
+		val, err := strconv.ParseFloat(strings.TrimSpace(str), 64)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse '%s' as float: %v", str, err)
+		}
+		floatValues = append(floatValues, val)
+	}
+	return floatValues, nil
 }
