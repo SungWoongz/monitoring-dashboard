@@ -1,14 +1,10 @@
-// src/store/cpu.ts
-import {defineStore} from 'pinia';
+import {App} from 'vue';
+import {createPinia} from 'pinia';
 
-export const useCpuStore = defineStore('cpu', {
-    state: () => ({
-        cpuData: null as Record<string, any> | null,
-    }),
-    actions: {
-        setCpuData(data: Record<string, any>) {
-            console.log('Setting CPU data:', data); // 디버깅용 로그
-            this.cpuData = data;
-        },
-    },
-});
+const pinia = createPinia();
+
+export function setupStore(app: App) {
+    app.use(pinia);
+}
+
+export default pinia;

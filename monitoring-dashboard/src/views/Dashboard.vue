@@ -1,12 +1,10 @@
 <template>
   <div>
     <h1>CPU Usage Dashboard</h1>
-    <!-- 로딩 상태 -->
     <p v-if="isLoading">Loading...</p>
-    <!-- 에러 상태 -->
     <p v-if="error">{{ error }}</p>
-    <!-- CPU 데이터 테이블 -->
-    <table v-if="cpuData && !isLoading">
+    <p v-if="!isLoading && !cpuData">No data available</p>
+    <table v-if="cpuData && Object.keys(cpuData).length > 0 && !isLoading">
       <thead>
       <tr>
         <th>Metric</th>
@@ -24,7 +22,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, ref, onMounted} from 'vue';
+import {defineComponent, ref, onMounted, computed} from 'vue';
 import {fetchCpuData} from '@/api/index';
 import {useCpuStore} from '@/store/cpu';
 
@@ -35,31 +33,28 @@ export default defineComponent({
     const isLoading = ref<boolean>(false);
     const error = ref<string | null>(null);
 
-    // 데이터 로딩 함수
     const loadCpuData = async () => {
-      console.log('Starting API call...');
-      isLoading.value = true; // 로딩 상태 시작
-      error.value = null; // 기존 에러 초기화
+      isLoading.value = true;
+      error.value = null;
       try {
-        const data = await fetchCpuData(); // API 호출
-        console.log('Data fetched:', data);
-        cpuStore.setCpuData(data); // 스토어 업데이트
+        const data = await fetchCpuData();
+        console.log('Fetched data:', data);
+        cpuStore.setCpuData(data);
       } catch (err) {
         console.error('Error fetching data:', err);
-        error.value = 'Failed to fetch CPU data.'; // 에러 메시지 설정
+        error.value = 'Failed to fetch CPU data.';
       } finally {
-        isLoading.value = false; // 로딩 상태 종료
+        isLoading.value = false;
       }
     };
 
-    // 마운트 후 데이터 로드
     onMounted(() => {
       console.log('Dashboard component mounted');
       loadCpuData();
     });
 
     return {
-      cpuData: cpuStore.cpuData, // 스토어에서 데이터 가져오기
+      cpuData: computed(() => cpuStore.cpuData), // 반응형 상태로 설정
       isLoading,
       error,
     };
@@ -68,7 +63,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-/* 테이블 스타일 */
 table {
   width: 100%;
   border-collapse: collapse;
