@@ -21,11 +21,20 @@ func HttpResponseStatusOk() *HttpResponse {
 	}
 }
 
-func HttpResponseInternalServerError() *HttpResponse {
+func HttpResponseBadRequest(msg string) *HttpResponse {
+	return &HttpResponse{
+		Status: HttpStatus{
+			Code:    http.StatusBadRequest,
+			Message: http.StatusText(http.StatusBadRequest) + msg,
+		},
+	}
+}
+
+func HttpResponseInternalServerError(msg string) *HttpResponse {
 	return &HttpResponse{
 		Status: HttpStatus{
 			Code:    http.StatusInternalServerError,
-			Message: http.StatusText(http.StatusInternalServerError),
+			Message: http.StatusText(http.StatusInternalServerError) + msg,
 		},
 	}
 }
