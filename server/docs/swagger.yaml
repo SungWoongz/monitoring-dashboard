@@ -54,6 +54,26 @@ paths:
       summary: Get CPU Status
       tags:
       - CPU
+  /info:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves information about the server, including hostname, OS,
+        uptime, platform, and virtualization details.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.HttpResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.HttpResponse'
+      summary: Get Server Information
+      tags:
+      - Server
   /mem:
     get:
       consumes:

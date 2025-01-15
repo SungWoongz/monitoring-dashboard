@@ -58,6 +58,35 @@
                 }
             }
         },
+        "/info": {
+            "get": {
+                "description": "Retrieves information about the server, including hostname, OS, uptime, platform, and virtualization details.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Server"
+                ],
+                "summary": "Get Server Information",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.HttpResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.HttpResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/mem": {
             "get": {
                 "description": "Retrieves memory status data based on the specified interval and limit.",

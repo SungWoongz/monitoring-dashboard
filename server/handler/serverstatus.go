@@ -36,6 +36,25 @@ func WS(c echo.Context) error {
 	}
 }
 
+// GetServerInfo godoc
+// @Summary Get Server Information
+// @Description Retrieves information about the server, including hostname, OS, uptime, platform, and virtualization details.
+// @Tags Server
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.HttpResponse
+// @Failure 500 {object} models.HttpResponse
+// @Router /info [get]
+func GetServerInfo(c echo.Context) error {
+	v := models.HttpResponseStatusOk()
+	i, err := controller.GetServerInfo()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, models.HttpResponseInternalServerError(err.Error()))
+	}
+	v.Data = i
+	return c.JSON(http.StatusOK, v)
+}
+
 // GetCpuStatusHandler godoc
 // @Summary Get CPU Status
 // @Description Retrieves CPU status data based on the specified interval and limit.
