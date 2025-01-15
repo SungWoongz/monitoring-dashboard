@@ -60,11 +60,7 @@ func CollectCpuStatus(db *gorm.DB) {
 	}
 }
 
-<<<<<<< HEAD
 // [NOTUSE!] ConvertStringToFloatArray converts a string like "[1.23,4.56]" to a float64 array
-=======
-// ConvertStringToFloatArray converts a string like "[1.23,4.56]" to a float64 array
->>>>>>> 97e9e548f2ce395e9ae5a36f2f4c41359c1607b7
 func ConvertStringToFloatArray(input string) ([]float64, error) {
 	input = strings.Trim(input, "[]")
 	strValues := strings.Split(input, ",")
