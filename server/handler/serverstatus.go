@@ -103,6 +103,7 @@ func GetMemStatusHandler(c echo.Context) error {
 	}
 	intervalInt, err := strconv.Atoi(interval)
 	if err != nil {
+<<<<<<< HEAD
 		return c.JSON(http.StatusBadRequest, models.HttpResponseBadRequest("Invalid interval parameter"))
 	}
 	limitInt, err := strconv.Atoi(limit)
@@ -112,6 +113,8 @@ func GetMemStatusHandler(c echo.Context) error {
 
 	d, err := controller.GetMemStatus(tx, intervalInt, limitInt)
 	if err != nil {
+=======
+>>>>>>> 97e9e548f2ce395e9ae5a36f2f4c41359c1607b7
 		return c.JSON(http.StatusInternalServerError, models.HttpResponseInternalServerError(err.Error()))
 	}
 	v.Data = d

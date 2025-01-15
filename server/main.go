@@ -30,5 +30,8 @@ func main() {
 
 func initServerStatusCollector() {
 	go controller.CollectCpuStatus(models.Db)
+<<<<<<< HEAD
 	go controller.CollectMemStatus(models.Db)
+=======
+>>>>>>> 97e9e548f2ce395e9ae5a36f2f4c41359c1607b7
 }

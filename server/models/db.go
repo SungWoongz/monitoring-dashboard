@@ -17,5 +17,9 @@ func init() {
 	if err != nil {
 		panic("failed to connect database")
 	}
+<<<<<<< HEAD
 	Db.AutoMigrate(&CPU_Status{}, &MEM_Status{})
+=======
+	Db.AutoMigrate(&CPU_Status{})
+>>>>>>> 97e9e548f2ce395e9ae5a36f2f4c41359c1607b7
 }
