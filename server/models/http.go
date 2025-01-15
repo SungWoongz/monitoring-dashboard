@@ -8,8 +8,8 @@ type HttpResponse struct {
 }
 
 type HttpStatus struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
+	Code    int    `json:"code" example:"200"`
+	Message string `json:"message" example:"OK"`
 }
 
 func HttpResponseStatusOk() *HttpResponse {
@@ -21,11 +21,20 @@ func HttpResponseStatusOk() *HttpResponse {
 	}
 }
 
-func HttpResponseInternalServerError() *HttpResponse {
+func HttpResponseBadRequest(msg string) *HttpResponse {
+	return &HttpResponse{
+		Status: HttpStatus{
+			Code:    http.StatusBadRequest,
+			Message: http.StatusText(http.StatusBadRequest) + msg,
+		},
+	}
+}
+
+func HttpResponseInternalServerError(msg string) *HttpResponse {
 	return &HttpResponse{
 		Status: HttpStatus{
 			Code:    http.StatusInternalServerError,
-			Message: http.StatusText(http.StatusInternalServerError),
+			Message: http.StatusText(http.StatusInternalServerError) + msg,
 		},
 	}
 }

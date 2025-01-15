@@ -5,9 +5,11 @@ import (
 	"net/http"
 	"server/controller"
 	"server/models"
+	"strconv"
 
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 var (
@@ -34,21 +36,83 @@ func WS(c echo.Context) error {
 	}
 }
 
+// GetCpuStatusHandler godoc
+// @Summary Get CPU Status
+// @Description Retrieves CPU status data based on the specified interval and limit.
+// @Tags CPU
+// @Accept json
+// @Produce json
+// @Param interval query string false "Interval in seconds (default: 1)"
+// @Param limit query string false "Number of records to fetch (default: 30)"
+// @Success 200 {object} models.HttpResponse
+// @Failure 400 {object} models.HttpResponse
+// @Failure 500 {object} models.HttpResponse
+// @Router /cpu [get]
 func GetCpuStatusHandler(c echo.Context) error {
+	tx := c.Get("tx").(*gorm.DB)
 	v := models.HttpResponseStatusOk()
-	d, err := controller.GetCpuStatus()
+
+	interval := c.QueryParam("interval")
+	limit := c.QueryParam("limit")
+	if interval == "" {
+		interval = "1"
+	}
+	if limit == "" {
+		limit = "30"
+	}
+	intervalInt, err := strconv.Atoi(interval)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, models.HttpResponseInternalServerError())
+		return c.JSON(http.StatusBadRequest, models.HttpResponseBadRequest("Invalid interval parameter"))
+	}
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, models.HttpResponseBadRequest("Invalid limit parameter"))
+	}
+
+	d, err := controller.GetCpuStatus(tx, intervalInt, limitInt)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, models.HttpResponseInternalServerError(err.Error()))
 	}
 	v.Data = d
 	return c.JSON(http.StatusOK, v)
 }
 
+// GetMemStatusHandler godoc
+// @Summary Get Memory Status
+// @Description Retrieves memory status data based on the specified interval and limit.
+// @Tags Memory
+// @Accept json
+// @Produce json
+// @Param interval query string false "Interval in seconds (default: 1)"
+// @Param limit query string false "Number of records to fetch (default: 30)"
+// @Success 200 {object} models.HttpResponse
+// @Failure 400 {object} models.HttpResponse
+// @Failure 500 {object} models.HttpResponse
+// @Router /memory [get]
 func GetMemStatusHandler(c echo.Context) error {
+	tx := c.Get("tx").(*gorm.DB)
 	v := models.HttpResponseStatusOk()
-	d, err := controller.GetMemStatus()
+
+	interval := c.QueryParam("interval")
+	limit := c.QueryParam("limit")
+	if interval == "" {
+		interval = "1"
+	}
+	if limit == "" {
+		limit = "30"
+	}
+	intervalInt, err := strconv.Atoi(interval)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, models.HttpResponseInternalServerError())
+		return c.JSON(http.StatusBadRequest, models.HttpResponseBadRequest("Invalid interval parameter"))
+	}
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, models.HttpResponseBadRequest("Invalid limit parameter"))
+	}
+
+	d, err := controller.GetMemStatus(tx, intervalInt, limitInt)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, models.HttpResponseInternalServerError(err.Error()))
 	}
 	v.Data = d
 	return c.JSON(http.StatusOK, v)

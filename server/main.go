@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"server/actions"
+	"server/controller"
+	"server/models"
 	v "server/variables"
 
 	"github.com/labstack/gommon/log"
@@ -16,9 +18,17 @@ func init() {
 }
 
 func main() {
+
+	initServerStatusCollector()
+
 	app := actions.App()
 	app.HideBanner = true
 	app.Logger.SetLevel(log.INFO)
 	app.Logger.SetHeader("${time_rfc3339} | ${level} | ${short_file}:${line}")
 	app.Logger.Fatal(app.Start(v.ADDR + ":" + v.PORT))
+}
+
+func initServerStatusCollector() {
+	go controller.CollectCpuStatus(models.Db)
+	go controller.CollectMemStatus(models.Db)
 }
