@@ -40,6 +40,7 @@ func App() *echo.Echo {
 
 		app.GET("/cpu", handler.GetCpuStatusHandler)
 		app.GET("/mem", handler.GetMemStatusHandler)
+		app.GET("/net", handler.GetNetStatusHandler)
 	})
 	return app
 }
