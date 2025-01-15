@@ -9,15 +9,10 @@ definitions:
   models.HttpStatus:
     properties:
       code:
-<<<<<<< HEAD
         example: 200
         type: integer
       message:
         example: OK
-=======
-        type: integer
-      message:
->>>>>>> 97e9e548f2ce395e9ae5a36f2f4c41359c1607b7
         type: string
     type: object
 host: localhost:8080
@@ -59,8 +54,7 @@ paths:
       summary: Get CPU Status
       tags:
       - CPU
-<<<<<<< HEAD
-  /memory:
+  /mem:
     get:
       consumes:
       - application/json
@@ -93,6 +87,4 @@ paths:
       summary: Get Memory Status
       tags:
       - Memory
-=======
->>>>>>> 97e9e548f2ce395e9ae5a36f2f4c41359c1607b7
 swagger: "2.0"

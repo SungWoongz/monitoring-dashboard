@@ -63,9 +63,8 @@ const docTemplate = `{
                     }
                 }
             }
-<<<<<<< HEAD
         },
-        "/memory": {
+        "/mem": {
             "get": {
                 "description": "Retrieves memory status data based on the specified interval and limit.",
                 "consumes": [
@@ -113,8 +112,6 @@ const docTemplate = `{
                     }
                 }
             }
-=======
->>>>>>> 97e9e548f2ce395e9ae5a36f2f4c41359c1607b7
         }
     },
     "definitions": {
@@ -131,19 +128,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "code": {
-<<<<<<< HEAD
                     "type": "integer",
                     "example": 200
                 },
                 "message": {
                     "type": "string",
                     "example": "OK"
-=======
-                    "type": "integer"
-                },
-                "message": {
-                    "type": "string"
->>>>>>> 97e9e548f2ce395e9ae5a36f2f4c41359c1607b7
                 }
             }
         }

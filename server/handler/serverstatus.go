@@ -88,7 +88,7 @@ func GetCpuStatusHandler(c echo.Context) error {
 // @Success 200 {object} models.HttpResponse
 // @Failure 400 {object} models.HttpResponse
 // @Failure 500 {object} models.HttpResponse
-// @Router /memory [get]
+// @Router /mem [get]
 func GetMemStatusHandler(c echo.Context) error {
 	tx := c.Get("tx").(*gorm.DB)
 	v := models.HttpResponseStatusOk()
