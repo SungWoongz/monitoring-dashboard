@@ -8,8 +8,8 @@ type HttpResponse struct {
 }
 
 type HttpStatus struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
+	Code    int    `json:"code" example:"200"`
+	Message string `json:"message" example:"OK"`
 }
 
 func HttpResponseStatusOk() *HttpResponse {
