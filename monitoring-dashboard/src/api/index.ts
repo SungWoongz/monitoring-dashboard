@@ -7,11 +7,11 @@ const api: AxiosInstance = axios.create({
     timeout: 10000, // 요청 타임아웃 설정
 });
 
-// CPU 데이터를 가져오는 함수
-export const fetchCpuData = async (): Promise<Record<string, any>> => {
+// CPU 데이터 호출 (응답 원본 반환)
+export const fetchCpuData = async (): Promise<any> => {
     try {
         const response = await api.get('/cpu');
-        return response.data.data.used;
+        return response.data.data; // 원본 데이터 반환
     } catch (error) {
         console.error('Error fetching CPU data:', error);
         throw error;
@@ -19,12 +19,35 @@ export const fetchCpuData = async (): Promise<Record<string, any>> => {
 };
 
 // MEMORY 데이터 가져오는 함수
-export const fetchMemData = async (): Promise<Record<string, any>> => {
+// MEMORY 데이터 호출 (응답 원본 반환)
+export const fetchMemData = async (): Promise<any> => {
     try {
         const response = await api.get('/mem');
-        return response.data.data;
+        return response.data; // 원본 데이터 반환
     } catch (error) {
         console.error('Error fetching MEMORY data:', error);
+        throw error;
+    }
+};
+
+// NETWORK 데이터 호출
+export const fetchNetData = async (): Promise<any> => {
+    try {
+        const response = await api.get('/net');
+        return response.data.data;
+    } catch (error) {
+        console.error('Error fetching NETWORK data:', error);
+        throw error;
+    }
+};
+
+// Server Info 데이터 호출
+export const fetchInfoData = async (): Promise<any> => {
+    try {
+        const response = await api.get('/info');
+        return response.data.data;
+    } catch (error) {
+        console.error('Error fetching Server Info data:', error);
         throw error;
     }
 };

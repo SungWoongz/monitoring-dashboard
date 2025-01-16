@@ -1,106 +1,121 @@
 <template>
-  <div class="container mx-auto px-4">
-    <h1 class="text-3xl font-bold mb-6 text-center">System Usage Dashboard</h1>
+  <div class="container mx-auto px-6 py-8 bg-gray-100">
+    <h1 class="text-4xl font-extrabold text-center text-gray-800 mb-10">
+      시스템 사용 대시보드
+    </h1>
 
-    <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      <SummaryCard v-for="(value, key) in summary" :key="key" :title="key" :value="value" />
+    <!-- 차트 섹션 -->
+    <div class="flex flex-wrap justify-center gap-8 mb-12">
+      <!-- CPU 사용 차트 -->
+      <div class="card">
+        <h2 class="card-title">CPU 사용량</h2>
+        <LineChart :labels="cpuChartLabels" :data="cpuChartData" />
+      </div>
+
+      <!-- Memory 게이지 -->
+      <div class="card">
+        <h2 class="card-title">Memory Usage</h2>
+        <Gauge :used="memoryData.used" :total="memoryData.total" :percentUsed="memoryData.percentUsed" />
+      </div>
+
+      <!-- 네트워크 사용량 차트 -->
+      <div class="card">
+        <h2 class="card-title">네트워크 사용량</h2>
+        <BarChart :labels="networkChartLabels" :sent="networkChartSent" :recv="networkChartRecv" />
+      </div>
     </div>
-
-    <!-- Charts -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <!-- 메모리 차트 -->
-      <PieChart :data="memoryData" />
-      <!-- CPU 차트 -->
-      <PieChart :data="cpuData" />
-    </div>
-
-    <!-- Detailed Tables -->
-    <MemoryTable :data="memoryData" />
-    <MemoryTable :data="cpuData" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref, onMounted } from 'vue';
-import SummaryCard from '@/components/SummaryCards.vue';
-import PieChart from '@/components/PieChart.vue';
+import { defineComponent, ref, onMounted } from 'vue';
 import LineChart from '@/components/LineChart.vue';
-import MemoryTable from '@/components/MemoryTable.vue';
-import { useMemoryStore } from '@/store/memory';
-import { useCpuStore } from '@/store/cpu';
-import { fetchCpuData, fetchMemData } from '@/api/index';
+import Gauge from '@/components/Gauge.vue';
+import BarChart from '@/components/BarChart.vue';
+import { processNetData } from '@/util/netUtils';
+import { processCpuData } from '@/util/cpuUtils';
+import { processMemData } from '@/util/memUtils';
+import { fetchCpuData, fetchMemData, fetchNetData } from '@/api/index';
 
 export default defineComponent({
   name: 'Dashboard',
-  components: { SummaryCard, PieChart, LineChart, MemoryTable },
+  components: { LineChart, Gauge, BarChart },
+
   setup() {
-    const memoryStore = useMemoryStore();
-    const cpuStore = useCpuStore();
+    const cpuChartLabels = ref<string[]>([]);
+    const cpuChartData = ref<number[]>([]);
+    const memoryData = ref({ total: 0, used: 0, percentUsed: 0 });
 
-    // CPU 상태
-    const isCpuLoading = ref<boolean>(false);
-    const cpuError = ref<string | null>(null);
+    const networkChartLabels = ref<string[]>([]); // 시간 라벨
+    const networkChartSent = ref<number[]>([]); // 전송량
+    const networkChartRecv = ref<number[]>([]); // 수신량
 
-    // Memory 상태
-    const isMemoryLoading = ref<boolean>(false);
-    const memoryError = ref<string | null>(null);
-
-    // CPU 데이터 로드
     const loadCpuData = async () => {
-      isCpuLoading.value = true;
-      cpuError.value = null;
-      try {
-        const data = await fetchCpuData();
-        console.log('Fetched CpuData:', data);
-        cpuStore.setCpuData(data);
-      } catch (err) {
-        console.error('Error fetching CpuData:', err);
-        cpuError.value = 'Failed to fetch CPU data.';
-      } finally {
-        isCpuLoading.value = false;
-      }
+      const rawData = await fetchCpuData();
+      const processedData = processCpuData(rawData);
+      cpuChartLabels.value = processedData.map((entry) => entry.time);
+      cpuChartData.value = processedData.map((entry) => entry.averageUsage);
     };
 
-    // Memory 데이터 로드
     const loadMemoryData = async () => {
-      isMemoryLoading.value = true;
-      memoryError.value = null;
+      const rawData = await fetchMemData();
+      memoryData.value = processMemData(rawData.data);
+    };
+
+    const loadNetworkData = async () => {
       try {
-        const data = await fetchMemData();
-        console.log('Fetched MemoryData:', data);
-        memoryStore.setMemoryData(data);
-      } catch (err) {
-        console.error('Error fetching MemoryData:', err);
-        memoryError.value = 'Failed to fetch Memory data.';
-      } finally {
-        isMemoryLoading.value = false;
+        const rawData = await fetchNetData(); // 원본 데이터 가져오기
+        console.log('Raw Network Data:', rawData); // 원본 데이터 확인
+        const processedData = processNetData(rawData); // 데이터 가공
+        console.log('Processed Network Data:', processedData); // 가공된 데이터 확인
+
+        networkChartLabels.value = processedData.map((entry) => entry.time);
+        networkChartSent.value = processedData.map((entry) => entry.sent);
+        networkChartRecv.value = processedData.map((entry) => entry.recv);
+      } catch (error) {
+        console.error('네트워크 데이터를 가져오는 중 오류 발생:', error);
       }
     };
 
-    // 마운트 후 데이터 로드
     onMounted(() => {
-      console.log('Dashboard component mounted');
       loadCpuData();
       loadMemoryData();
+      loadNetworkData();
     });
 
     return {
-      memoryData: computed(() => memoryStore.memoryData || { used: 0, free: 0 }),
-      cpuData: computed(() => cpuStore.cpuData || { used: 0, free: 0 }),
-      summary: computed(() => ({
-        TotalMemory: memoryStore.memoryData?.total || 'N/A',
-        UsedMemory: memoryStore.memoryData?.used || 'N/A',
-        FreeMemory: memoryStore.memoryData?.free || 'N/A',
-        TotalCPU: cpuStore.cpuData?.total || 'N/A',
-        UsedCPU: cpuStore.cpuData?.used || 'N/A',
-      })),
-      memoryHistory: computed(() => memoryStore.memoryHistory || []),
+      cpuChartLabels,
+      cpuChartData,
+      memoryData,
+      networkChartLabels,
+      networkChartSent,
+      networkChartRecv,
     };
   },
 });
 </script>
 
 <style scoped>
-/* 추가 스타일이 필요한 경우 */
+.container {
+  max-width: 90rem; /* 1440px */
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #f8f9fa;
+}
+
+.card {
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  min-height: 21.875rem;
+  width: 36rem;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 1rem;
+}
 </style>

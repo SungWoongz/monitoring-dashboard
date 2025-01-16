@@ -1,80 +1,86 @@
 <template>
   <div>
-    <canvas id="line-chart"></canvas>
+    <canvas ref="canvas" class="line-chart"></canvas>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, watch } from 'vue';
-import { Chart } from 'chart.js';
+import { defineComponent, onMounted, ref, watch } from 'vue';
+import { Chart, LineController, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+
+Chart.register(LineController, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 export default defineComponent({
   name: 'LineChart',
   props: {
-    history: {
-      type: Array,
+    labels: {
+      type: Array as () => string[],
+      required: true,
+    },
+    data: {
+      type: Array as () => number[],
       required: true,
     },
   },
   setup(props) {
+    const canvas = ref<HTMLCanvasElement | null>(null);
     let chart: Chart | null = null;
 
-    const renderChart = () => {
-      const ctx = document.getElementById('line-chart') as HTMLCanvasElement;
-
-      if (!ctx) {
-        console.error('Canvas element not found');
-        return;
-      }
-
-      // 기존 차트를 제거 (중복 생성 방지)
+    const createChart = () => {
       if (chart) {
         chart.destroy();
       }
 
-      chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: props.history.map((_, index) => `Time ${index}`),
-          datasets: [
-            {
-              label: 'Memory Usage',
-              data: props.history,
-              borderColor: '#36A2EB',
-              fill: false,
+      if (canvas.value) {
+        chart = new Chart(canvas.value, {
+          type: 'line',
+          data: {
+            labels: props.labels,
+            datasets: [
+              {
+                label: 'CPU 사용량 평균 (%)',
+                data: props.data,
+                borderColor: '#36A2EB',
+                backgroundColor: 'rgba(54,162,235,0.2)',
+                fill: true,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+              tooltip: {
+                enabled: true,
+              },
             },
-          ],
-        },
-      });
+          },
+        });
+      }
     };
 
-    onMounted(() => {
-      if (props.history && props.history.length > 0) {
-        renderChart();
-      } else {
-        console.warn('History data is empty or undefined');
-      }
-    });
-
-    // props.history 변경 시 차트 다시 렌더링
     watch(
-        () => props.history,
-        (newHistory) => {
-          if (newHistory && newHistory.length > 0) {
-            renderChart();
-          }
-        },
-        { immediate: true }
+        () => [props.labels, props.data],
+        () => createChart(),
+        { deep: true }
     );
 
-    return {};
+    onMounted(() => {
+      createChart();
+    });
+
+    return {
+      canvas,
+    };
   },
 });
 </script>
 
 <style scoped>
-canvas {
-  max-width: 800px;
+.line-chart {
+  max-width: 100%;
   margin: auto;
 }
 </style>
