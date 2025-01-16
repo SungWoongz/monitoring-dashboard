@@ -184,9 +184,51 @@
                     }
                 }
             }
+        },
+        "/ws": {
+            "get": {
+                "description": "Handles WebSocket connections and streams system status updates (CPU, Memory, Network) every second.",
+                "tags": [
+                    "WebSocket"
+                ],
+                "summary": "WebSocket Endpoint",
+                "responses": {
+                    "200": {
+                        "description": "System status updates are sent via WebSocket.",
+                        "schema": {
+                            "$ref": "#/definitions/models.ALL_Status"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "models.ALL_Status": {
+            "type": "object",
+            "properties": {
+                "cpu": {
+                    "$ref": "#/definitions/models.CPU_Status"
+                },
+                "mem": {
+                    "$ref": "#/definitions/models.MEM_Status"
+                },
+                "net": {
+                    "$ref": "#/definitions/models.NET_Status"
+                }
+            }
+        },
+        "models.CPU_Status": {
+            "type": "object",
+            "properties": {
+                "Usage": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                }
+            }
+        },
         "models.HttpResponse": {
             "type": "object",
             "properties": {
@@ -206,6 +248,79 @@
                 "message": {
                     "type": "string",
                     "example": "OK"
+                }
+            }
+        },
+        "models.MEM_Status": {
+            "type": "object",
+            "properties": {
+                "available": {
+                    "description": "NULL 불가",
+                    "type": "integer"
+                },
+                "timestamp": {
+                    "description": "기본 키 및 자동 생성 시간",
+                    "type": "string"
+                },
+                "total": {
+                    "description": "NULL 불가",
+                    "type": "integer"
+                },
+                "used": {
+                    "description": "NULL 불가",
+                    "type": "integer"
+                },
+                "usedPercent": {
+                    "description": "소수점 2자리 제한",
+                    "type": "number"
+                }
+            }
+        },
+        "models.NET_Status": {
+            "type": "object",
+            "properties": {
+                "bytesRecv": {
+                    "description": "number of bytes received",
+                    "type": "integer"
+                },
+                "bytesSent": {
+                    "description": "number of bytes sent",
+                    "type": "integer"
+                },
+                "dropin": {
+                    "description": "total number of incoming packets which were dropped",
+                    "type": "integer"
+                },
+                "dropout": {
+                    "description": "total number of outgoing packets which were dropped",
+                    "type": "integer"
+                },
+                "errin": {
+                    "description": "total number of errors while receiving",
+                    "type": "integer"
+                },
+                "errout": {
+                    "description": "total number of errors while sending",
+                    "type": "integer"
+                },
+                "fifoin": {
+                    "description": "total number of FIFO buffers errors while receiving",
+                    "type": "integer"
+                },
+                "fifoout": {
+                    "description": "total number of FIFO buffers errors while sending",
+                    "type": "integer"
+                },
+                "packetsRecv": {
+                    "description": "number of packets received",
+                    "type": "integer"
+                },
+                "packetsSent": {
+                    "description": "number of packets sent",
+                    "type": "integer"
+                },
+                "timestamp": {
+                    "type": "string"
                 }
             }
         }
