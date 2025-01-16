@@ -24,6 +24,7 @@ func GetCpuCurrentStatus() (models.CPU_Status, error) {
 		return v, err
 	}
 	v.Usage = string(cpstring)
+	v.Timestamp = time.Now()
 	return v, nil
 }
 
