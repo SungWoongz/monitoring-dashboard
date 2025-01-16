@@ -1,39 +1,84 @@
 package handler
 
 import (
-	"fmt"
+	"context"
 	"net/http"
 	"server/controller"
 	"server/models"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
 
-var (
-	upgrader = websocket.Upgrader{}
-)
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
 
+// @Summary WebSocket Endpoint
+// @Description Handles WebSocket connections and streams system status updates (CPU, Memory, Network) every second.
+// @Tags WebSocket
+// @Success 200 {object} models.ALL_Status "System status updates are sent via WebSocket."
+// @Router /ws [get]
 func WS(c echo.Context) error {
-	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
+	conn, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
+		c.Logger().Errorf("WebSocket Upgrade Error: %s", err.Error())
 		return err
 	}
-	defer ws.Close()
+	defer conn.Close()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	handleErrors := func(err error) {
+		if err.Error() == "websocket: close sent" {
+			c.Logger().Debugf("WebSocket closed: %v", err)
+		} else if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) {
+			c.Logger().Infof("WebSocket closed: %v", err)
+		} else {
+			c.Logger().Errorf("WebSocket error: %s", err.Error())
+		}
+	}
+
+	go func() {
+		ticker := time.NewTicker(1 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				cpu, _ := controller.GetCpuCurrentStatus()
+				mem, _ := controller.GetMemCurrentStatus()
+				net, _ := controller.GetNetCurrentStatus()
+				if err := conn.WriteJSON(models.ALL_Status{
+					CPU: cpu,
+					MEM: mem,
+					NET: net,
+				}); err != nil {
+					handleErrors(err)
+					cancel()
+					return
+				}
+			}
+		}
+	}()
 
 	for {
-		err := ws.WriteMessage(websocket.TextMessage, []byte("Hello, Client!"))
+		_, _, err := conn.ReadMessage()
 		if err != nil {
-			c.Logger().Error(err)
+			handleErrors(err)
+			cancel()
+			break
 		}
-		_, msg, err := ws.ReadMessage()
-		if err != nil {
-			c.Logger().Error(err)
-		}
-		fmt.Printf("%s\n", msg)
 	}
+
+	return nil
 }
 
 // GetServerInfo godoc
